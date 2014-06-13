@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c -Wall -O3 -I ./src
+CFLAGS=-c -Wall -std=c++11 -O3 -I ./src
 LDFLAGS=
 SOURCES=./src/main.cpp ./src/Core/ConsoleUtilities.cpp ./src/Network/NetworkServerClient.cpp ./src/Network/NetworkServer.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
