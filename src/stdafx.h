@@ -53,6 +53,8 @@ using namespace std;
 
 #include "Core/Preconfig.h"
 #include "Core/ConsoleUtilities.h"
+
+#include "Config/Configuration.h"
 #include "Memory/Buffer.h"
 #include "Network/Utilities.inl"
 #include "Network/NetworkServer.h"

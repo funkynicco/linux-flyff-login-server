@@ -112,3 +112,25 @@ inline bool IsValidChar( char c )
 
     return false;
 }
+
+inline void ToLower( char* str )
+{
+    while( *str )
+    {
+        if( *str >= 'A' &&
+            *str <= 'Z' )
+            *str += 32;
+        ++str;
+    }
+}
+
+inline void ToUpper( char* str )
+{
+    while( *str )
+    {
+        if( *str >= 'a' &&
+            *str <= 'z' )
+            *str -= 32;
+        ++str;
+    }
+}

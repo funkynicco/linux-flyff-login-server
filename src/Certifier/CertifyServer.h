@@ -58,6 +58,8 @@ private:
     unsigned long long m_nNextId;
     map<uint32_t, pfnFuncPtr> m_functions;
     time_t tmNextCheckClients;
+    char m_szRequiredVersion[ 128 ];
+    int32_t m_nAuthenicationTimeout;
 };
 
 #undef DECLARE_FUNC

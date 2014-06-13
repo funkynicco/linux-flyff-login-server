@@ -28,6 +28,9 @@
     <Filter Include="Cryptography">
       <UniqueIdentifier>{1fb5948e-8f3f-4010-9a78-4178a31eabde}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{35b3eed0-c00e-4eae-8c6e-1e9e22c673df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">
@@ -54,6 +57,9 @@
     <ClCompile Include="..\src\Cryptography\Rijndael.cpp">
       <Filter>Cryptography</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Config\Configuration.cpp">
+      <Filter>Config</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\stdafx.h">
@@ -79,6 +85,9 @@
     </ClInclude>
     <ClInclude Include="..\src\Cryptography\Rijndael.h">
       <Filter>Cryptography</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Config\Configuration.h">
+      <Filter>Config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

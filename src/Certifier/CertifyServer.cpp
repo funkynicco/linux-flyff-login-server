@@ -53,8 +53,22 @@ CCertifyServer::CCertifyServer() :
 m_pFreeList( NULL ),
 m_bIsDestroy( false ),
 m_nNextId( 1 ),
-tmNextCheckClients( 0 )
+tmNextCheckClients( 0 ),
+m_nAuthenicationTimeout( 30 )
 {
+    *m_szRequiredVersion = 0; // disabled by default
+    bool bEnableRequiredVersion = false;
+
+    if( !CConfiguration::GetInstance()->GetValue( "RequireVersion", &bEnableRequiredVersion ) )
+        DBGMSG( "RequireVersion was not present in configuration file." );
+
+    if( bEnableRequiredVersion &&
+        !CConfiguration::GetInstance()->GetValue( "ClientVersion", m_szRequiredVersion, sizeof( m_szRequiredVersion ) ) )
+        DBGMSG( "ClientVersion was not present in configuration file." );
+
+    if( !CConfiguration::GetInstance()->GetValue( "AuthenticationTimeout", &m_nAuthenicationTimeout ) )
+        DBGMSG( "AuthenticationTimeout was not present in configuration file." );
+
     AddFunction( PACKETTYPE_CERTIFY, OnCertify );
     AddFunction( PACKETTYPE_PING, OnPing );
     AddFunction( PACKETTYPE_CLOSE_EXISTING_CONNECTION, OnCloseExistingConnection );
@@ -175,9 +189,8 @@ void CCertifyServer::Process( time_t tm )
             auto client = (CertifyClient*)it->second;
 
             if( !client->bAuthenticated &&
-                tm - client->tmStartTime > 30 ) // todo: place timeout in configuration file
+                tm - client->tmStartTime > m_nAuthenicationTimeout )
             {
-                // 30 seconds timeout
                 client->Disconnect( "Authentication timed out" );
             }
         }
@@ -209,7 +222,7 @@ DEFINE_FUNC( OnCertify )
 
     printf( "Auth request\n\tclient_version: %s\n\taccount: %s\n\tpassword: %s\n", client_version, account, szDec );
 
-    client->SendError( 121 ); // ERROR_FLYFF_ACCOUNT
+    client->SendError( ERROR_FLYFF_ACCOUNT );
 }
 
 DEFINE_FUNC( OnPing )

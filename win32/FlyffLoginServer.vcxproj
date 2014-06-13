@@ -80,6 +80,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\Certifier\CertifyServer.cpp" />
     <ClCompile Include="..\src\Certifier\CertifyServerClient.cpp" />
+    <ClCompile Include="..\src\Config\Configuration.cpp" />
     <ClCompile Include="..\src\Core\ConsoleUtilities.cpp" />
     <ClCompile Include="..\src\Cryptography\Rijndael.cpp" />
     <ClCompile Include="..\src\main.cpp" />
@@ -90,6 +91,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\Certifier\CertifyServer.h" />
     <ClInclude Include="..\src\Certifier\MsgHdr.h" />
+    <ClInclude Include="..\src\Config\Configuration.h" />
     <ClInclude Include="..\src\Core\ConsoleUtilities.h" />
     <ClInclude Include="..\src\Core\Preconfig.h" />
     <ClInclude Include="..\src\Cryptography\Rijndael.h" />
