@@ -9,7 +9,7 @@
 //Rijndael.cpp
 
 #include <cstring>
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "Rijndael.h"
 
 const int CRijndael::sm_alog[ 256 ] =
