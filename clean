@@ -3,7 +3,7 @@
 find ./src -name '*.o'
 find ./src -name '*.o' | xargs rm
 
-echo ./app
-rm app
+echo ./certifier
+rm certifier
 
 #rm -fR *.o
