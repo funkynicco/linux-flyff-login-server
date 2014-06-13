@@ -1076,7 +1076,10 @@ void CRijndael::MakeKey( char const* key, char const* chain, int keylength, int 
 void CRijndael::DefEncryptBlock( char const* in, char* result )
 {
     if( false == m_bKeyInit )
-        throw exception( sm_szErrorMsg1 );
+    {
+        printf( "CRijndael::Xor ERROR: %s\n", sm_szErrorMsg1 );
+        throw sm_szErrorMsg1;
+    }
     int* Ker = m_Ke[ 0 ];
     int t0 = ( (unsigned char)*( in++ ) << 24 );
     t0 |= ( (unsigned char)*( in++ ) << 16 );
