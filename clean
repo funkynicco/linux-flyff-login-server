@@ -1,0 +1,9 @@
+#!/bin/sh
+
+find ./src -name '*.o'
+find ./src -name '*.o' | xargs rm
+
+echo ./app
+rm app
+
+#rm -fR *.o
