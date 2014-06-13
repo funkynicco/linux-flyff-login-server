@@ -18,35 +18,35 @@ public:
     void Read( void* lpBuf, size_t nSize );
     void Write( const void* lpBuf, size_t nSize );
 
-    void ReadString( LPSTR szString, size_t nMaxLen );
-    void WriteString( LPCSTR szString );
+    void ReadString( char* szString, size_t nMaxLen );
+    void WriteString( const char* szString );
 
     void CheckBuf( size_t nSize );
     void Remove( size_t nLength );
     void Insert( size_t nIndex, void* lpBuf, size_t nLength );
 
     /* Reserves a range of bytes that can be written to later on. */
-    LPBYTE Reserve( size_t nSize );
+    unsigned char* Reserve( size_t nSize );
     void Flush();
     void Reset( void* lpBuf = NULL, size_t nBufSize = 0 );
 
-    inline BOOL IsLoading() { return !m_bIsStoring; }
-    inline BOOL IsStoring() { return m_bIsStoring; }
+    inline bool IsLoading() { return !m_bIsStoring; }
+    inline bool IsStoring() { return m_bIsStoring; }
     inline size_t GetOffset() { return m_lpBufCur - m_lpBufStart; }
-    inline LPBYTE GetBuffer() { return m_lpBufStart; }
+    inline unsigned char* GetBuffer() { return m_lpBufStart; }
     inline size_t GetBufferSize() { return m_nBufSize; }
     inline size_t GetLength() { return m_lpBufMax - m_lpBufStart; }
     inline size_t GetRemain() { return m_lpBufMax - m_lpBufCur; }
 
-    inline void SetIsStoring( BOOL bIsStoring ) { m_bIsStoring = bIsStoring; }
+    inline void SetIsStoring( bool bIsStoring ) { m_bIsStoring = bIsStoring; }
 
-    inline BOOL SetOffset( size_t nOffset )
+    inline bool SetOffset( size_t nOffset )
     {
         if( m_lpBufStart + nOffset > m_lpBufEnd )
-            return FALSE;
+            return false;
 
         m_lpBufCur = m_lpBufStart + nOffset;
-        return TRUE;
+        return true;
     }
 
     template <typename T>
@@ -64,11 +64,11 @@ public:
     }
 
 private:
-    BOOL m_bIsStoring;
+    bool m_bIsStoring;
     size_t m_nBufSize;
-    LPBYTE m_lpBufCur;		// Current pointer
-    LPBYTE m_lpBufEnd;		// End of buffered memory
-    LPBYTE m_lpBufStart;	// Begin
-    LPBYTE m_lpBufMax;		// Maximum valid data in current buffer (Length, as opposed to the end)
-    BYTE m_lpBuf[ BUFFER_SIZE ];
+    unsigned char* m_lpBufCur;		// Current pointer
+    unsigned char* m_lpBufEnd;		// End of buffered memory
+    unsigned char* m_lpBufStart;	// Begin
+    unsigned char* m_lpBufMax;		// Maximum valid data in current buffer (Length, as opposed to the end)
+    unsigned char m_lpBuf[ BUFFER_SIZE ];
 };

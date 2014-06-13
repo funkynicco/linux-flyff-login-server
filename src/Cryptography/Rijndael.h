@@ -11,7 +11,6 @@
 #ifndef __RIJNDAEL_H__
 #define __RIJNDAEL_H__
 
-#include <exception>
 #include <cstring>
 
 using namespace std;
@@ -86,8 +85,11 @@ private:
     //Auxiliary Function
     void Xor( char* buff, char const* chain )
     {
-        if( false == m_bKeyInit )
-            throw exception( sm_szErrorMsg1 );
+        if( !m_bKeyInit )
+        {
+            printf( "CRijndael::Xor ERROR: %s\n", sm_szErrorMsg1 );
+            throw sm_szErrorMsg1;
+        }
         for( int i = 0; i < m_blockSize; i++ )
             *( buff++ ) ^= *( chain++ );
     }
@@ -122,24 +124,33 @@ public:
     //Get Key Length
     int GetKeyLength()
     {
-        if( false == m_bKeyInit )
-            throw exception( sm_szErrorMsg1 );
+        if( !m_bKeyInit )
+        {
+            printf( "CRijndael::Xor ERROR: %s\n", sm_szErrorMsg1 );
+            throw sm_szErrorMsg1;
+        }
         return m_keylength;
     }
 
     //Block Size
     int	GetBlockSize()
     {
-        if( false == m_bKeyInit )
-            throw exception( sm_szErrorMsg1 );
+        if( !m_bKeyInit )
+        {
+            printf( "CRijndael::Xor ERROR: %s\n", sm_szErrorMsg1 );
+            throw sm_szErrorMsg1;
+        }
         return m_blockSize;
     }
 
     //Number of Rounds
     int GetRounds()
     {
-        if( false == m_bKeyInit )
-            throw exception( sm_szErrorMsg1 );
+        if( !m_bKeyInit )
+        {
+            printf( "CRijndael::Xor ERROR: %s\n", sm_szErrorMsg1 );
+            throw sm_szErrorMsg1;
+        }
         return m_iROUNDS;
     }
 

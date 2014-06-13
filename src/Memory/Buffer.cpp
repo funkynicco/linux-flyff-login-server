@@ -40,7 +40,7 @@ void CAr::Write( const void* lpBuf, size_t nSize )
     m_lpBufMax = max( m_lpBufMax, m_lpBufCur );
 }
 
-void CAr::ReadString( LPSTR szString, size_t nMaxLen )
+void CAr::ReadString( char* szString, size_t nMaxLen )
 {
     int len = 0;
     Read( &len, sizeof( int ) );
@@ -51,7 +51,7 @@ void CAr::ReadString( LPSTR szString, size_t nMaxLen )
     }
 }
 
-void CAr::WriteString( LPCSTR szString )
+void CAr::WriteString( const char* szString )
 {
     int len = (int)strlen( szString );
     Write( &len, sizeof( int ) );
@@ -72,11 +72,11 @@ void CAr::CheckBuf( size_t nSize )
 
     if( m_nBufSize > BUFFER_SIZE )
     {
-        m_lpBufStart = (LPBYTE)realloc( m_lpBufStart, newsize );
+        m_lpBufStart = (unsigned char*)realloc( m_lpBufStart, newsize );
     }
     else
     {
-        LPBYTE lpBuf = (LPBYTE)malloc( newsize );
+        unsigned char* lpBuf = (unsigned char*)malloc( newsize );
         memcpy( lpBuf, m_lpBufStart, m_nBufSize );
         m_lpBufStart = lpBuf;
     }
@@ -123,11 +123,11 @@ void CAr::Insert( size_t nIndex, void* lpBuf, size_t nLength )
     m_lpBufMax += nLength;
 }
 
-LPBYTE CAr::Reserve( size_t nSize )
+unsigned char* CAr::Reserve( size_t nSize )
 {
     CheckBuf( nSize );
 
-    LPBYTE lpBufCur = m_lpBufCur;
+    unsigned char* lpBufCur = m_lpBufCur;
 
     m_lpBufCur += nSize;
     m_lpBufMax = max( m_lpBufMax, m_lpBufCur );
@@ -139,15 +139,15 @@ void CAr::Reset( void* lpBuf, size_t nBufSize )
 {
     if( lpBuf )
     {
-        m_bIsStoring = FALSE;
-        m_lpBufStart = (LPBYTE)lpBuf;
+        m_bIsStoring = false;
+        m_lpBufStart = (unsigned char*)lpBuf;
         m_nBufSize = nBufSize;
-        m_lpBufMax = (LPBYTE)lpBuf + nBufSize;
+        m_lpBufMax = (unsigned char*)lpBuf + nBufSize;
     }
     else
     {
-        m_bIsStoring = TRUE;
-        m_lpBufStart = (LPBYTE)m_lpBuf;
+        m_bIsStoring = true;
+        m_lpBufStart = (unsigned char*)m_lpBuf;
         m_nBufSize = BUFFER_SIZE;
         m_lpBufMax = m_lpBufStart;
     }
