@@ -10,8 +10,10 @@ m_sock( INVALID_SOCKET )
 ,m_events( NULL )
 #endif // __linux
 {
+#ifdef _WIN32
     m_tv.tv_sec = 0;
     m_tv.tv_usec = 1;
+#endif // _WIN32
 }
 
 CNetworkServer::~CNetworkServer()

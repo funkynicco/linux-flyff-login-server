@@ -9,8 +9,16 @@
 
 class CTestServer : public CNetworkServer
 {
-protected:
+public:
+    CTestServer()
+    {
+    }
 
+    virtual ~CTestServer()
+    {
+    }
+
+protected:
     void OnClientConnected( ServerClient* client )
     {
         printf( "[%d] Client connected from %s\n", client->Socket, client->szIP );
@@ -20,8 +28,8 @@ protected:
         char buf[ 4096 ];
         sprintf(
             buf,
-            "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
-            strlen( html ),
+            "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\n\r\n%s",
+            (int)strlen( html ),
             html );
 
         send( client->Socket, buf, strlen( buf ), 0 );
@@ -34,7 +42,7 @@ protected:
 
     void OnClientData( ServerClient* client, const unsigned char* data, size_t length )
     {
-        printf( "[%d] Client data from %s (%d bytes)\n", client->Socket, client->szIP, length );
+        printf( "[%d] Client data from %s (%d bytes)\n", client->Socket, client->szIP, (int)length );
 
         return; // temp, dont print out all data ...
 
