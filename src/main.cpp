@@ -7,74 +7,9 @@
 
 #include "stdafx.h"
 
-class CTestServer : public CNetworkServer
-{
-public:
-    CTestServer()
-    {
-    }
-
-    virtual ~CTestServer()
-    {
-    }
-
-protected:
-    void OnClientConnected( ServerClient* client )
-    {
-        printf( "[%d] Client connected from %s\n", client->Socket, client->szIP );
-
-        const char* html = "<h1>Hello world</h1><p>This is a test.</p>";
-
-        char buf[ 4096 ];
-        sprintf(
-            buf,
-            "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %d\r\n\r\n%s",
-            (int)strlen( html ),
-            html );
-
-        send( client->Socket, buf, strlen( buf ), 0 );
-    }
-
-    void OnClientDisconnected( ServerClient* client )
-    {
-        printf( "[%d] Client disconnected from %s\n", client->Socket, client->szIP );
-    }
-
-    void OnClientData( ServerClient* client, const unsigned char* data, size_t length )
-    {
-        printf( "[%d] Client data from %s (%d bytes)\n", client->Socket, client->szIP, (int)length );
-
-        return; // temp, dont print out all data ...
-
-        static char buf[ 4096 ];
-        size_t total = 0;
-        while( length > 0 )
-        {
-            size_t l = min( sizeof ( buf ), length );
-            memcpy( buf, data, l );
-            data += l;
-            length -= l;
-
-            for( size_t i = 0; i < l; ++i )
-            {
-                if( total > 0 &&
-                    total++ % 32 == 0 )
-                    printf( "\n" );
-
-                char cb = buf[ i ];
-                if( IsValidChar( cb ) )
-                    printf( "%c", cb );
-                else
-                    printf( "%%%02X", cb );
-            }
-        }
-        printf( "\n" );
-    }
-};
-
 int main( int argc, char** argv )
 {
-    int port = 80;
+    int port = 23000;
     if( argc > 1 )
     {
         port = atoi( argv[ 1 ] );
@@ -84,6 +19,8 @@ int main( int argc, char** argv )
             return 1;
         }
     }
+
+    CAr faf;
 
 #ifdef _WIN32
     WSADATA wd;
@@ -95,11 +32,12 @@ int main( int argc, char** argv )
     }
 #endif // _WIN32
 
-    CTestServer server;
+    CCertifyServer server;
 
+    printf( "Starting server on port %d ...", port );
     if( server.Start( port ) )
     {
-        printf( "Started server on port %d\n", port );
+        printf( "\t[OK]\n" );
 
         while( 1 )
         {
@@ -109,7 +47,7 @@ int main( int argc, char** argv )
             if( _kbhit() )
             {
                 int ch = _getch();
-                if( ch == VK_ESCAPE )//VK_ESCAPE
+                if( ch == VK_ESCAPE )
                     break;
             }
 
@@ -120,7 +58,7 @@ int main( int argc, char** argv )
         server.Close();
     }
     else
-        printf( "Failed to start server\n" );
+        printf( "\t[FAIL]\nFailed to start server on the port number provided.\n" );
 
 #ifdef __linux
     RestoreTermIOS(); // Restores the console echo feedback on application exit

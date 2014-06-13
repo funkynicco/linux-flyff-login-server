@@ -19,6 +19,15 @@
     <Filter Include="Network">
       <UniqueIdentifier>{eff31d74-ef69-429c-8ff5-d0f59aee0917}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Memory">
+      <UniqueIdentifier>{360783c4-c683-4f7f-911a-50d730271934}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Certifier">
+      <UniqueIdentifier>{07ba6c0e-1456-45fc-b421-6d96d1f63d92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cryptography">
+      <UniqueIdentifier>{1fb5948e-8f3f-4010-9a78-4178a31eabde}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.cpp">
@@ -33,6 +42,18 @@
     <ClCompile Include="..\src\Network\NetworkServerClient.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Memory\Buffer.cpp">
+      <Filter>Memory</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Certifier\CertifyServer.cpp">
+      <Filter>Certifier</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Certifier\CertifyServerClient.cpp">
+      <Filter>Certifier</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Cryptography\Rijndael.cpp">
+      <Filter>Cryptography</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\stdafx.h">
@@ -46,6 +67,18 @@
     </ClInclude>
     <ClInclude Include="..\src\Network\NetworkServer.h">
       <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Memory\Buffer.h">
+      <Filter>Memory</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Certifier\CertifyServer.h">
+      <Filter>Certifier</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Certifier\MsgHdr.h">
+      <Filter>Certifier</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Cryptography\Rijndael.h">
+      <Filter>Cryptography</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

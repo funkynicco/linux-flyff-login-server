@@ -1,9 +1,9 @@
 CC=g++
 CFLAGS=-c -Wall -std=c++11 -O3 -I ./src
 LDFLAGS=
-SOURCES=./src/main.cpp ./src/Core/ConsoleUtilities.cpp ./src/Network/NetworkServerClient.cpp ./src/Network/NetworkServer.cpp
+SOURCES=./src/main.cpp ./src/Certifier/CertifyServer.cpp ./src/Certifier/CertifyServerClient.cpp ./src/Core/ConsoleUtilities.cpp ./src/Cryptography/Rijndael.cpp ./src/Memory/Buffer.cpp ./src/Network/NetworkServerClient.cpp ./src/Network/NetworkServer.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=app
+EXECUTABLE=certifier
 
 all: $(SOURCES) $(EXECUTABLE)
 
@@ -12,5 +12,3 @@ $(EXECUTABLE): $(OBJECTS)
 
 .cpp.o:
 	$(CC) $(CFLAGS) $< -o $@
-
-#	g++ -I ./src $(SOURCES) -o app

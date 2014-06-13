@@ -53,5 +53,9 @@ using namespace std;
 
 #include "Core/Preconfig.h"
 #include "Core/ConsoleUtilities.h"
+#include "Memory/Buffer.h"
 #include "Network/Utilities.inl"
 #include "Network/NetworkServer.h"
+#include "Cryptography/Rijndael.h"
+#include "Certifier/MsgHdr.h"
+#include "Certifier/CertifyServer.h"

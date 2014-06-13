@@ -78,14 +78,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Certifier\CertifyServer.cpp" />
+    <ClCompile Include="..\src\Certifier\CertifyServerClient.cpp" />
     <ClCompile Include="..\src\Core\ConsoleUtilities.cpp" />
+    <ClCompile Include="..\src\Cryptography\Rijndael.cpp" />
     <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\Memory\Buffer.cpp" />
     <ClCompile Include="..\src\Network\NetworkServer.cpp" />
     <ClCompile Include="..\src\Network\NetworkServerClient.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Certifier\CertifyServer.h" />
+    <ClInclude Include="..\src\Certifier\MsgHdr.h" />
     <ClInclude Include="..\src\Core\ConsoleUtilities.h" />
     <ClInclude Include="..\src\Core\Preconfig.h" />
+    <ClInclude Include="..\src\Cryptography\Rijndael.h" />
+    <ClInclude Include="..\src\Memory\Buffer.h" />
     <ClInclude Include="..\src\Network\NetworkServer.h" />
     <ClInclude Include="..\src\stdafx.h" />
   </ItemGroup>

@@ -18,7 +18,7 @@ struct ServerClient
     char szIP[16];
     bool bDisconnect;
     char szDisconnectReason[ 256 ];
-    void* pTag;
+    void* pTag; /* optional user set tag */
 
     ServerClient( CNetworkServer* pServer );
     virtual ~ServerClient() { }
@@ -44,6 +44,8 @@ struct ServerClient
             strcpy( szDisconnectReason, reason );
         }
     }
+
+    int Send( const void* data, size_t len );
 };
 
 class CNetworkServer
@@ -54,9 +56,10 @@ public:
 
     bool Start( uint16_t port );
     void Close( );
-    void Process( time_t tm );
+    virtual void Process( time_t tm );
 
 protected:
+    map<SOCKET, ServerClient*> m_clients;
 
     virtual void OnClientConnected( ServerClient* client )
     {
@@ -83,6 +86,5 @@ private:
     fd_set m_fd; // simple FD set on windows
     TIMEVAL m_tv;
 #endif // __linux
-    map<SOCKET, ServerClient*> m_clients;
     char m_buf[ MAX_BUFFER ];
 };

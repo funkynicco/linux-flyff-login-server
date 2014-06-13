@@ -1,3 +1,10 @@
+/*
+ * File:   NetworkServer.h
+ * Author: nicco
+ *
+ * Created on June 12, 2014, 11:56 AM
+ */
+
 #include "stdafx.h"
 #include "NetworkServer.h"
 
@@ -308,5 +315,6 @@ ServerClient* CNetworkServer::AllocateClient( SOCKET Socket )
 
 void CNetworkServer::FreeClient( ServerClient* client )
 {
+    client->Uninit();
     delete client;
 }
