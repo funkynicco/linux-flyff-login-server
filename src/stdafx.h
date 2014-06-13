@@ -26,7 +26,11 @@
 #endif // __linux
 
 #ifdef _WIN32
+#include <WinSock2.h>
+#pragma comment(lib, "ws2_32.lib")
 #include <Windows.h>
+#include <conio.h>
+#include <inttypes.h>
 #endif // _WIN32
 
 #include <map>
@@ -34,7 +38,7 @@
 
 using namespace std;
 
-#ifndef _DEBUG
+//#ifdef _DEBUG
 #define DBGMSG( __msg ) printf( "In method '%s' at %s:%d:\t%s\n", __FUNCTION__, __FILE__, __LINE__, __msg );
 /*
  * Writes debug messages in console. This requires formatting parameters in the end.
@@ -45,7 +49,7 @@ using namespace std;
     sprintf( __intmsg, "In method '%s' at %s:%d:\t%s\n", __FUNCTION__, __FILE__, __LINE__, __msg ); \
     printf( __intmsg, __VA_ARGS__ ); \
 }
-#endif // _DEBUG
+//#endif // _DEBUG
 
 #include "Core/Preconfig.h"
 #include "Core/ConsoleUtilities.h"

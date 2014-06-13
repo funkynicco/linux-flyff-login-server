@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.cpp
  * Author: nicco
  *
@@ -19,10 +19,10 @@ protected:
 
         char buf[ 4096 ];
         sprintf(
-                 buf,
-                 "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
-                 strlen( html ),
-                 html );
+            buf,
+            "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: %u\r\n\r\n%s",
+            strlen( html ),
+            html );
 
         send( client->Socket, buf, strlen( buf ), 0 );
     }
@@ -35,14 +35,14 @@ protected:
     void OnClientData( ServerClient* client, const unsigned char* data, size_t length )
     {
         printf( "[%d] Client data from %s (%d bytes)\n", client->Socket, client->szIP, length );
-        
+
         return; // temp, dont print out all data ...
-        
+
         static char buf[ 4096 ];
         size_t total = 0;
         while( length > 0 )
         {
-            size_t l = min( sizeof (buf), length );
+            size_t l = min( sizeof ( buf ), length );
             memcpy( buf, data, l );
             data += l;
             length -= l;
@@ -50,7 +50,7 @@ protected:
             for( size_t i = 0; i < l; ++i )
             {
                 if( total > 0 &&
-                        total++ % 32 == 0 )
+                    total++ % 32 == 0 )
                     printf( "\n" );
 
                 char cb = buf[ i ];
@@ -69,13 +69,23 @@ int main( int argc, char** argv )
     int port = 80;
     if( argc > 1 )
     {
-        port = atoi( argv[1] );
+        port = atoi( argv[ 1 ] );
         if( port <= 0 || port > 65535 )
         {
             printf( "Invalid port number %d given in parameter.\n", port );
             return 1;
         }
     }
+
+#ifdef _WIN32
+    WSADATA wd;
+    int n;
+    if( ( n = WSAStartup( MAKEWORD( 2, 2 ), &wd ) ) != 0 )
+    {
+        printf( "WSAStartup failed with code: %u\n", n );
+        return 1;
+    }
+#endif // _WIN32
 
     CTestServer server;
 
@@ -85,12 +95,12 @@ int main( int argc, char** argv )
 
         while( 1 )
         {
-            time_t tm = time(NULL);
+            time_t tm = time( NULL );
             server.Process( tm );
 
-            if( _kbhit( ) )
+            if( _kbhit() )
             {
-                int ch = _getch( );
+                int ch = _getch();
                 if( ch == VK_ESCAPE )//VK_ESCAPE
                     break;
             }
@@ -99,12 +109,17 @@ int main( int argc, char** argv )
         }
 
         printf( "Shutting down ...\n" );
-        server.Close( );
+        server.Close();
     }
     else
         printf( "Failed to start server\n" );
 
-    RestoreTermIOS( ); // Restores the console echo feedback on application exit
+#ifdef __linux
+    RestoreTermIOS(); // Restores the console echo feedback on application exit
+#endif // __linux
+#ifdef _WIN32
+    WSACleanup();
+#endif // _WIN32
     return 0;
 }
 

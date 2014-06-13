@@ -27,7 +27,13 @@
 #define Sleep( __ms ) usleep( __ms * 1000 )
 #define VK_ESCAPE 0x1B
 #define closesocket( __sock ) close( __sock )
+
+#define ERR_NR errno
 #endif // __linux
 
 #ifdef _WIN32 // Define things for Windows here
+#define ERR_NR GetLastError()
+#define SHUT_RDWR SD_BOTH
+#define SHUT_RD SD_RECEIVE
+#define SHUT_WR SD_SEND
 #endif // _WIN32

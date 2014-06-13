@@ -3,18 +3,20 @@
 
 #define MAX_EVENTS 32768
 
-CNetworkServer::CNetworkServer( ) :
-m_sock( INVALID_SOCKET ),
-m_efd( -1 ),
-m_events( NULL ),
-m_tmNextAccept( 0 )
+CNetworkServer::CNetworkServer() :
+m_sock( INVALID_SOCKET )
+#ifdef __linux
+,m_efd( -1 )
+,m_events( NULL )
+#endif // __linux
 {
-
+    m_tv.tv_sec = 0;
+    m_tv.tv_usec = 1;
 }
 
-CNetworkServer::~CNetworkServer( )
+CNetworkServer::~CNetworkServer()
 {
-    Close( );
+    Close();
 }
 
 bool CNetworkServer::Start( uint16_t port )
@@ -25,15 +27,22 @@ bool CNetworkServer::Start( uint16_t port )
         return false;
     }
 
-    if( (m_sock = socket( AF_INET, SOCK_STREAM, 0 )) == INVALID_SOCKET )
+#ifdef _WIN32
+    int protocol = IPPROTO_TCP;
+#else // _WIN32
+    int protocol = 0;
+#endif // _WIN32
+    if( ( m_sock = socket( AF_INET, SOCK_STREAM, protocol ) ) == INVALID_SOCKET )
     {
         DBGMSG( "socket() returned INVALID_SOCKET" );
         return false;
     }
 
+#ifdef __linux
     int val = 1;
-    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof (int) ) == -1 )
-        DBGMSG_F( "Failed to set SO_REUSEADDR on socket %d (error: %d)", m_sock, errno );
+    if( setsockopt( m_sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof ( int ) ) == -1 )
+        DBGMSG_F( "Failed to set SO_REUSEADDR on socket %d (error: %d)", m_sock, ERR_NR );
+#endif // __linux
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -42,26 +51,27 @@ bool CNetworkServer::Start( uint16_t port )
 
     int a = 0, b = 0;
 
-    if( (a = bind( m_sock, (struct sockaddr*) &addr, sizeof (addr) )) == SOCKET_ERROR ||
-            (b = listen( m_sock, SOMAXCONN )) == SOCKET_ERROR )
+    if( ( a = bind( m_sock, ( struct sockaddr* ) &addr, sizeof ( addr ) ) ) == SOCKET_ERROR ||
+        ( b = listen( m_sock, SOMAXCONN ) ) == SOCKET_ERROR )
     {
-        DBGMSG_F( "bind(%d) or listen(%d) failed, errno: %d", a, b, errno );
+        DBGMSG_F( "bind(%d) or listen(%d) failed, errno: %d", a, b, ERR_NR );
 
-        Close( );
+        Close();
         return false;
     }
 
+#ifdef __linux
     if( !SetSocketBlocking( m_sock, false ) )
     {
         DBGMSG( "Failed to set socket as non-blocking" );
-        Close( );
+        Close();
         return false;
     }
 
-    if( (m_efd = epoll_create1( 0 )) == -1 )
+    if( ( m_efd = epoll_create1( 0 ) ) == -1 )
     {
         DBGMSG( "epoll_create1 returned -1" );
-        Close( );
+        Close();
         return false;
     }
 
@@ -70,19 +80,20 @@ bool CNetworkServer::Start( uint16_t port )
     if( epoll_ctl( m_efd, EPOLL_CTL_ADD, m_sock, &m_event ) == -1 )
     {
         DBGMSG( "epoll_ctl returned -1" );
-        Close( );
+        Close();
         return false;
     }
 
-    m_events = (struct epoll_event*) malloc( sizeof (struct epoll_event) * MAX_EVENTS );
+    m_events = ( struct epoll_event* ) malloc( sizeof ( struct epoll_event ) * MAX_EVENTS );
     //#ifdef _DEBUG
-    memset( m_events, 0, sizeof (struct epoll_event) * MAX_EVENTS );
+    memset( m_events, 0, sizeof ( struct epoll_event ) * MAX_EVENTS );
     //#endif // _DEBUG
+#endif // __linux
 
     return true;
 }
 
-void CNetworkServer::Close( )
+void CNetworkServer::Close()
 {
     if( m_sock == INVALID_SOCKET )
     {
@@ -91,28 +102,30 @@ void CNetworkServer::Close( )
     }
 
     map<SOCKET, ServerClient*>::iterator it;
-    while( (it = m_clients.begin( )) != m_clients.end( ) )
+    while( ( it = m_clients.begin() ) != m_clients.end() )
     {
         ServerClient* client = it->second;
         m_clients.erase( it );
 
         if( shutdown( client->Socket, SHUT_RDWR ) == -1 )
-            DBGMSG_F( "shutdown failed on client %d with error: %d", client->Socket, errno );
+            DBGMSG_F( "shutdown failed on client %d with error: %d", client->Socket, ERR_NR );
         closesocket( client->Socket );
         OnClientDisconnected( client );
         FreeClient( client );
     }
 
     if( shutdown( m_sock, SHUT_RD ) == -1 )
-        DBGMSG_F( "shutdown failed on listening socket with error: %d", errno );
+        DBGMSG_F( "shutdown failed on listening socket with error: %d", ERR_NR );
     closesocket( m_sock );
     m_sock = INVALID_SOCKET;
 
+#ifdef __linux
     if( m_events )
     {
         free( m_events );
         m_events = NULL;
     }
+#endif // __linux
 
     DBGMSG( "Close completed" );
 }
@@ -122,21 +135,22 @@ void CNetworkServer::Process( time_t tm )
     if( m_sock == INVALID_SOCKET )
         return;
 
+#ifdef __linux
     int n = epoll_wait( m_efd, m_events, MAX_EVENTS, 1 );
     for( int i = 0; i < n; ++i )
     {
-        if( (m_events[i].events & EPOLLERR) ||
-                (m_events[i].events & EPOLLHUP) ||
-                (!(m_events[i].events & EPOLLIN)) )
+        if( ( m_events[ i ].events & EPOLLERR ) ||
+            ( m_events[ i ].events & EPOLLHUP ) ||
+            ( !( m_events[ i ].events & EPOLLIN ) ) )
         {
             /* An error has occured on this fd, or the socket is not
              * ready for reading (why were we notified then?)
              */
 
-            closesocket( m_events[i].data.fd );
+            closesocket( m_events[ i ].data.fd );
 
-            map<SOCKET, ServerClient*>::iterator it = m_clients.find( m_events[i].data.fd );
-            if( it != m_clients.end( ) )
+            map<SOCKET, ServerClient*>::iterator it = m_clients.find( m_events[ i ].data.fd );
+            if( it != m_clients.end() )
             {
                 ServerClient* client = it->second;
                 m_clients.erase( it );
@@ -145,19 +159,19 @@ void CNetworkServer::Process( time_t tm )
                 continue;
             }
         }
-        else if( m_events[i].data.fd == m_sock && tm >= m_tmNextAccept )
+        else if( m_events[ i ].data.fd == m_sock )
         {
             // Process incoming connection
             struct sockaddr_in addr;
             while( 1 )
             {
-                socklen_t addrlen = sizeof (addr);
-                SOCKET c = accept( m_sock, (struct sockaddr*) &addr, &addrlen );
+                socklen_t addrlen = sizeof ( addr );
+                SOCKET c = accept( m_sock, ( struct sockaddr* ) &addr, &addrlen );
                 if( c != INVALID_SOCKET )
                 {
                     ServerClient* client = AllocateClient( c );
-                    GetIPAddress( &addr, client->szIP, sizeof (client->szIP) );
-                    m_clients.insert( pair<SOCKET, ServerClient*>(c, client) );
+                    GetIPAddress( &addr, client->szIP, sizeof ( client->szIP ) );
+                    m_clients.insert( pair<SOCKET, ServerClient*>( c, client ) );
                     OnClientConnected( client );
 
                     if( !SetSocketBlocking( c, false ) )
@@ -170,10 +184,9 @@ void CNetworkServer::Process( time_t tm )
                 }
                 else
                 {
-                    if( errno == EAGAIN || errno == EWOULDBLOCK )
+                    if( ERR_NR == EAGAIN || ERR_NR == EWOULDBLOCK )
                         break;
-                    printf( "Failed to accept connecting socket (code: %d)\n", errno );
-                    //m_tmNextAccept = tm + 3;
+                    printf( "Failed to accept connecting socket (code: %d)\n", ERR_NR );
                     break;
                 }
             }
@@ -183,18 +196,18 @@ void CNetworkServer::Process( time_t tm )
         {
             int done = 0;
 
-            map<SOCKET, ServerClient*>::iterator it = m_clients.find( m_events[i].data.fd );
-            ServerClient* client = it != m_clients.end( ) ? it->second : NULL;
+            map<SOCKET, ServerClient*>::iterator it = m_clients.find( m_events[ i ].data.fd );
+            ServerClient* client = it != m_clients.end() ? it->second : NULL;
 
             if( !client )
-                DBGMSG_F( "Fatal error, client %d is not in m_clients", m_events[i].data.fd );
+                DBGMSG_F( "Fatal error, client %d is not in m_clients", m_events[ i ].data.fd );
 
             while( 1 )
             {
-                ssize_t count = read( m_events[i].data.fd, m_buf, sizeof (m_buf) );
+                ssize_t count = read( m_events[ i ].data.fd, m_buf, sizeof ( m_buf ) );
                 if( count == -1 )
                 {
-                    if( errno != EAGAIN )
+                    if( ERR_NR != EAGAIN )
                     {
                         DBGMSG( "errno != EAGAIN at read" );
                         done = 1;
@@ -210,13 +223,13 @@ void CNetworkServer::Process( time_t tm )
                 }
 
                 if( client )
-                    OnClientData( client, (const unsigned char*) m_buf, count );
+                    OnClientData( client, (const unsigned char*)m_buf, count );
             }
 
             if( done )
             {
                 //printf("Connection closed on socket %d\n",m_events[i].data.fd);
-                closesocket( m_events[i].data.fd );
+                closesocket( m_events[ i ].data.fd );
                 if( client )
                 {
                     m_clients.erase( it );
@@ -226,6 +239,62 @@ void CNetworkServer::Process( time_t tm )
             }
         }
     }
+#else // __linux
+    // windows implementation of select (we don't really care of high performance on windows as windows is only used for developing)
+    FD_ZERO( &m_fd );
+    FD_SET( m_sock, &m_fd );
+    if( select( m_sock, &m_fd, NULL, NULL, &m_tv ) > 0 &&
+        FD_ISSET( m_sock, &m_fd ) )
+    {
+        // accept a new client
+        sockaddr_in addr;
+        int addrlen = sizeof( addr );
+        SOCKET c = accept( m_sock, (LPSOCKADDR)&addr, &addrlen );
+        if( c != INVALID_SOCKET )
+        {
+            ServerClient* client = AllocateClient( c );
+            GetIPAddress( &addr, client->szIP, sizeof ( client->szIP ) );
+            m_clients.insert( pair<SOCKET, ServerClient*>( c, client ) );
+            OnClientConnected( client );
+        }
+        else
+            printf( "Invalid socket in accept (code: %u)\n", ERR_NR );
+    }
+
+    // loop through each client and see if there is data available
+    for( map<SOCKET, ServerClient*>::iterator it = m_clients.begin(); it != m_clients.end(); )
+    {
+        ServerClient* client = it->second;
+
+        if( client->bDisconnect )
+        {
+            it = m_clients.erase( it );
+
+            if( shutdown( client->Socket, SHUT_RDWR ) == -1 )
+                DBGMSG_F( "shutdown failed on client %d with error: %d", client->Socket, ERR_NR );
+            closesocket( client->Socket );
+            OnClientDisconnected( client );
+            FreeClient( client );
+        }
+        else
+        {
+            FD_ZERO( &m_fd );
+            FD_SET( client->Socket, &m_fd );
+            if( select( client->Socket, &m_fd, NULL, NULL, &m_tv ) > 0 &&
+                FD_ISSET( client->Socket, &m_fd ) )
+            {
+                // data receive
+                int len = recv( client->Socket, m_buf, sizeof( m_buf ), 0 );
+                if( len > 0 )
+                    OnClientData( client, (const unsigned char*)m_buf, len );
+                else
+                    client->bDisconnect = true;
+            }
+
+            ++it;
+        }
+    }
+#endif // __linux
 }
 
 ServerClient* CNetworkServer::AllocateClient( SOCKET Socket )

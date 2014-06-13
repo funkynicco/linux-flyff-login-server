@@ -74,10 +74,14 @@ protected:
 
 private:
     SOCKET m_sock;
+#ifdef __linux
     struct epoll_event m_event;
     struct epoll_event* m_events;
     int m_efd;
+#else // __linux
+    fd_set m_fd; // simple FD set on windows
+    TIMEVAL m_tv;
+#endif // __linux
     map<SOCKET, ServerClient*> m_clients;
     char m_buf[ MAX_BUFFER ];
-    time_t m_tmNextAccept;
 };

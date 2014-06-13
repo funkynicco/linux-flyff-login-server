@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Utilities.inl
  * Author: nicco
  *
@@ -27,12 +27,12 @@ inline bool GetIPAddress( sockaddr_in* addr, char* output, size_t outputLen )
         return false;
 
     sprintf(
-             output,
-             "%d.%d.%d.%d",
-             (unsigned char)addr->sin_addr.s_addr,
-             (unsigned char)(addr->sin_addr.s_addr >> 8),
-             (unsigned char)(addr->sin_addr.s_addr >> 16),
-             (unsigned char)(addr->sin_addr.s_addr >> 24) );
+        output,
+        "%d.%d.%d.%d",
+        (unsigned char)addr->sin_addr.s_addr,
+        (unsigned char)( addr->sin_addr.s_addr >> 8 ),
+        (unsigned char)( addr->sin_addr.s_addr >> 16 ),
+        (unsigned char)( addr->sin_addr.s_addr >> 24 ) );
 
     return true;
 }
@@ -42,6 +42,15 @@ inline bool GetIPAddress( sockaddr_in* addr, char* output, size_t outputLen )
  */
 inline bool SetSocketBlocking( SOCKET s, bool isBlocking )
 {
+#ifdef _WIN32
+    unsigned long mode = isBlocking ? 0 : 1;
+    int n;
+    if( ( n = ioctlsocket( s, FIONBIO, &mode ) ) != 0 )
+    {
+        DBGMSG_F( "ioctlsocket returned %d", n );
+        return false;
+    }
+#else // _WIN32
     int flags = fcntl( s, F_GETFL, 0 );
     if( flags == -1 )
     {
@@ -59,6 +68,7 @@ inline bool SetSocketBlocking( SOCKET s, bool isBlocking )
         DBGMSG( "fcntl F_SETFL returned -1" );
         return false;
     }
+#endif // _WIN32
 
     return true;
 }
@@ -69,7 +79,7 @@ inline bool SetSocketBlocking( SOCKET s, bool isBlocking )
 inline bool IsValidChar( char c )
 {
     if( isalpha( c ) ||
-            isdigit( c ) )
+        isdigit( c ) )
         return true;
 
     switch( c )
