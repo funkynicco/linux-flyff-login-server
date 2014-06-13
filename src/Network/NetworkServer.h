@@ -21,6 +21,7 @@ struct ServerClient
     void* pTag;
 
     ServerClient( CNetworkServer* pServer );
+    virtual ~ServerClient() { }
 
     // add other shits here
     virtual void Init( SOCKET Socket );
